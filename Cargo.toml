@@ -1,0 +1,18 @@
+[package]
+name = "ea-sync"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "0.11", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+dotenv = "0.15.0"
+serde = { version = "1.0.145", features = ["derive"] }
+serde_json = "1.0.85"
+google-calendar3 = "4.0.1+20220217"
+hyper = "0.14.20"
+hyper-rustls = "0.23.0"
+chrono = "0.4.22"
+tl = "0.7.7"
