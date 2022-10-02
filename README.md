@@ -21,3 +21,4 @@ More CLI options comming soon. Currently it syncs 2 weeks from current day.
 This repo is a part of Hacktoberfest 2022
 You can make pull requests to this repo
 and I will merge it, probably
+Ok, now i will get a shirt (:
