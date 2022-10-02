@@ -16,3 +16,6 @@ More CLI options comming soon. Currently it syncs 2 weeks from current day.
 - Copy the service account email and share the previously created calendar with it, allow adding new events
 - Build the program with `cargo build --release`
 - Run the program from `.env` and `credentials.json` directory `./target/release/ea-async`
+
+
+This repo is a part of Hacktoberfest 2022
