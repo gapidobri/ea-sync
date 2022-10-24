@@ -104,7 +104,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let event = Event {
             summary: Some(ea_event.title.clone()),
-            location: Some(ea_event.classroom),
+            location: ea_event.classroom,
             start: Some(EventDateTime {
                 date_time: Some(format!("{}T{}:00+02:00", ea_event.date, ea_event.from)),
                 ..EventDateTime::default()

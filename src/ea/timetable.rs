@@ -13,7 +13,7 @@ pub struct TimetableEvent {
     pub from: String,
     pub to: String,
     pub title: String,
-    pub classroom: String,
+    pub classroom: Option<String>,
 }
 
 #[derive(Debug)]
@@ -51,10 +51,10 @@ pub async fn get_timetable(token: &str, from: &str, to: &str) -> Result<Timetabl
         .header("x-client-version", "13")
         .send()
         .await
-        .map_err(|_| TimetableError::new("Request failed"))?
+        .map_err(|e| TimetableError::new(&e.to_string()))?
         .json::<Timetable>()
         .await
-        .map_err(|_| TimetableError::new("Failed to parse json"))?;
+        .map_err(|e| TimetableError::new(&e.to_string()))?;
 
     Ok(timetable)
 }
