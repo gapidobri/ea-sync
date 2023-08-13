@@ -7,7 +7,7 @@ More CLI options comming soon. Currently it syncs 2 weeks from current day.
 ### Setup
 
 - Copy `.env.example` to `.env`
-- Enter your easistent `USERNAME` and `PASSWORD`
+- Enter your easistent `EA_USERNAME` and `EA_PASSWORD`
 - Create a new google calendar and copy its id from settings to `CALENDAR_ID`
 - Go to <https://console.cloud.google.com> and create a new project
 - Enable google calendar API

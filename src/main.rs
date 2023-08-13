@@ -39,7 +39,7 @@ pub struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Sync with Google Calendar
-    Sync,
+    Sync(cmd::sync::Args),
 
     /// Start an iCal server
     Serve(cmd::serve::Args),
@@ -52,8 +52,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Sync => {
-            cmd::sync::execute(&cli).await?;
+        Commands::Sync(args) => {
+            cmd::sync::execute(&cli, args).await?;
         }
         Commands::Serve(args) => {
             cmd::serve::execute(&cli, args).await?;

@@ -7,9 +7,15 @@ use google_calendar3::{
     api::{Event, EventDateTime},
     oauth2, CalendarHub,
 };
-use std::env;
 
-pub async fn execute(cli: &Cli) -> Result<(), Box<dyn std::error::Error>> {
+#[derive(clap::Args)]
+pub struct Args {
+    /// ID of the google calendar
+    #[arg(short, long, env)]
+    calendar_id: String,
+}
+
+pub async fn execute(cli: &Cli, args: &Args) -> Result<(), Box<dyn std::error::Error>> {
     println!("Syncing timetable with Google Calendar...");
 
     let mut ea = EAsistent::new();
@@ -39,11 +45,9 @@ pub async fn execute(cli: &Cli) -> Result<(), Box<dyn std::error::Error>> {
         auth,
     );
 
-    let calendar_id = env::var("CALENDAR_ID").expect("CALENDAR_ID not set");
-
     let mut existing_events = hub
         .events()
-        .list(calendar_id.as_str())
+        .list(&args.calendar_id.as_ref())
         .time_min(&from.to_rfc3339())
         .time_max(&to.to_rfc3339())
         .doit()
@@ -91,7 +95,7 @@ pub async fn execute(cli: &Cli) -> Result<(), Box<dyn std::error::Error>> {
         };
 
         hub.events()
-            .insert(event, calendar_id.as_str())
+            .insert(event, &args.calendar_id.as_str())
             .doit()
             .await?;
 
@@ -100,7 +104,7 @@ pub async fn execute(cli: &Cli) -> Result<(), Box<dyn std::error::Error>> {
 
     for ex_event in existing_events {
         hub.events()
-            .delete(calendar_id.as_str(), ex_event.id.as_ref().unwrap())
+            .delete(&args.calendar_id.as_str(), ex_event.id.as_ref().unwrap())
             .doit()
             .await?;
 
