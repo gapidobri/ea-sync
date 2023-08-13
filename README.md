@@ -15,10 +15,18 @@ More CLI options comming soon. Currently it syncs 2 weeks from current day.
 - Save downloaded json file to `credentials.json` in the same folder as the executable file
 - Copy the service account email and share the previously created calendar with it, allow adding new events
 - Build the program with `cargo build --release`
-- Run the program from `.env` and `credentials.json` directory `./target/release/ea-sync`
+- Run the program from `.env` and `credentials.json` directory `./target/release/ea-sync <subcommand>`
 
+### Commands
 
-This repo is a part of Hacktoberfest 2022
-You can make pull requests to this repo
-and I will merge it, probably
-Ok, now i will get a shirt (:
+## Sync
+
+Syncs eAsistent with Google Calendar
+
+`ea-sync sync`
+
+## Serve (WIP)
+
+Starts up a iCal server
+
+`ea-sync serve`

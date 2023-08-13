@@ -23,12 +23,12 @@ impl fmt::Display for LoginError {
     }
 }
 
-pub async fn login(username: &str, password: &str) -> Result<String, LoginError> {
+pub async fn login(username: &String, password: &String) -> Result<String, LoginError> {
     let client = reqwest::Client::new();
 
     let mut params = HashMap::<&str, &str>::new();
-    params.insert("uporabnik", username);
-    params.insert("geslo", password);
+    params.insert("uporabnik", username.as_ref());
+    params.insert("geslo", password.as_ref());
 
     let login_res = client
         .post("https://www.easistent.com/p/ajax_prijava")
