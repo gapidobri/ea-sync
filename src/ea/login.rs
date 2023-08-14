@@ -1,6 +1,7 @@
+use chrono::{DateTime, Utc};
 use core::fmt;
-use std::{collections::HashMap, error};
-use tl::VDom;
+use serde::{Deserialize, Serialize};
+use std::error;
 
 #[derive(Debug)]
 pub struct LoginError {
@@ -23,57 +24,69 @@ impl fmt::Display for LoginError {
     }
 }
 
-pub async fn login(username: &String, password: &String) -> Result<String, LoginError> {
-    let client = reqwest::Client::new();
-
-    let mut params = HashMap::<&str, &str>::new();
-    params.insert("uporabnik", username.as_ref());
-    params.insert("geslo", password.as_ref());
-
-    let login_res = client
-        .post("https://www.easistent.com/p/ajax_prijava")
-        .form(&params)
-        .send()
-        .await
-        .map_err(|_| LoginError::new("Login request failed"))?;
-
-    let cookie = login_res
-        .headers()
-        .get("set-cookie")
-        .ok_or_else(|| LoginError::new("Cookie is missing in response"))?
-        .to_str()
-        .map_err(|_| LoginError::new("Failed to parse cookie"))?;
-
-    let html = client
-        .get("https://www.easistent.com/webapp")
-        .header("cookie", cookie)
-        .send()
-        .await
-        .map_err(|_| LoginError::new("Token request failed"))?
-        .text()
-        .await
-        .map_err(|_| LoginError::new("Retrieving body failed"))?;
-
-    let dom = tl::parse(html.as_str(), tl::ParserOptions::default())
-        .map_err(|_| LoginError::new("Failed to parse DOM"))?;
-
-    let token = extract_token(&dom).ok_or_else(|| LoginError::new("Failed to extract token"))?;
-
-    Ok(token)
+#[derive(Debug, Serialize, Deserialize)]
+struct LoginRequest {
+    username: String,
+    password: String,
+    supported_user_types: Vec<String>,
 }
 
-fn extract_token(dom: &VDom) -> Option<String> {
-    Some(
-        dom.query_selector("meta[name='access-token']")?
-            .next()?
-            .get(dom.parser())?
-            .as_tag()?
-            .attributes()
-            .get("content")??
-            .as_utf8_str()
-            .to_string()
-            .split(" ")
-            .last()?
-            .to_string(),
-    )
+#[derive(Debug, Serialize, Deserialize)]
+struct LoginResponse {
+    access_token: AccessToken,
+    refresh_token: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct AccessToken {
+    token: String,
+    expiration_date: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ErrorResponse {
+    error: Error,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Error {
+    code: i32,
+    developer_message: String,
+    user_message: String,
+}
+
+pub async fn login(username: String, password: String) -> Result<String, LoginError> {
+    let client = reqwest::Client::new();
+
+    let request_body = LoginRequest {
+        username,
+        password,
+        supported_user_types: vec![String::from("child")],
+    };
+
+    let response = client
+        .post("https://www.easistent.com/m/login")
+        .header("X-App-Name", "child")
+        .header("X-Client-Version", "11101")
+        .header("X-Client-Platform", "android")
+        .json::<LoginRequest>(&request_body)
+        .send()
+        .await
+        .map_err(|e| LoginError::new(e.to_string().as_ref()))?;
+
+    if !response.status().is_success() {
+        let response_body = response
+            .json::<ErrorResponse>()
+            .await
+            .map_err(|e| LoginError::new(e.to_string().as_ref()))?;
+
+        return Err(LoginError::new(&response_body.error.user_message));
+    }
+
+    let response_body = response
+        .json::<LoginResponse>()
+        .await
+        .map_err(|e| LoginError::new(e.to_string().as_ref()))?;
+
+    Ok(response_body.access_token.token)
 }

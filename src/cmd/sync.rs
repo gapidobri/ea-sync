@@ -20,7 +20,7 @@ pub async fn execute(cli: &Cli, args: &Args) -> Result<(), Box<dyn std::error::E
 
     let mut ea = EAsistent::new();
 
-    ea.login(&cli.username, &cli.password).await?;
+    ea.login(cli.username.clone(), cli.password.clone()).await?;
 
     let from = strip_time(Utc::now(), false).unwrap();
     let to = strip_time(Utc::now(), true).unwrap() + Duration::days(30);

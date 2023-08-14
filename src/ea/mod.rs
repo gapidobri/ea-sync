@@ -16,7 +16,7 @@ impl EAsistent {
     pub fn new() -> Self {
         Self { token: None }
     }
-    pub async fn login(&mut self, username: &String, password: &String) -> Result<(), LoginError> {
+    pub async fn login(&mut self, username: String, password: String) -> Result<(), LoginError> {
         self.token = Some(login(username, password).await?);
         Ok(())
     }
